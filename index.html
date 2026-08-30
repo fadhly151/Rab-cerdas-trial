@@ -1578,44 +1578,56 @@ if(redeemBtn) redeemBtn.addEventListener('click', async ()=>{
   try{
     const db = firebase.firestore();
     const codeRef = db.collection('licenseCodes').doc(code);
-    const codeSnap = await codeRef.get();
-    if(!codeSnap.exists){
-      statusEl.textContent = 'Kode tidak ditemukan. Periksa kembali penulisannya.';
+    const userRef = db.collection('users').doc(user.uid);
+
+    // Pakai TRANSACTION (bukan 2 penulisan terpisah) — supaya pengecekan "kode
+    // masih unused" dan penulisan isPro:true terjadi terhadap data yang SAMA-SAMA
+    // konsisten. Sebelumnya kode ditandai 'used' dulu baru user diberi PRO, yang
+    // membuat aturan keamanan menolak penulisan kedua (karena saat itu kode sudah
+    // berstatus 'used', bukan 'unused' lagi) — persis penyebab pesan gagal kemarin.
+    const result = await db.runTransaction(async (tx)=>{
+      const codeSnap = await tx.get(codeRef);
+      if(!codeSnap.exists) return {ok:false, reason:'not-found'};
+      const codeData = codeSnap.data();
+      const alreadyMine = codeData.status === 'used' && codeData.usedBy === user.uid;
+      if(codeData.status === 'used' && !alreadyMine) return {ok:false, reason:'used-by-other'};
+
+      const durationDays = (typeof codeData.durationDays === 'number' && codeData.durationDays > 0) ? codeData.durationDays : null;
+      const expiresAtMs = durationDays ? (Date.now() + durationDays*24*60*60*1000) : null;
+
+      if(codeData.status !== 'used'){
+        tx.update(codeRef, {
+          status:'used', usedBy:user.uid, usedByEmail:user.email||'',
+          usedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      tx.set(userRef, {
+        isPro:true, licenseCode:code,
+        proPackage: codeData.package || 'PRO',
+        proDurationDays: durationDays,
+        proActivatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        proExpiresAt: expiresAtMs ? firebase.firestore.Timestamp.fromMillis(expiresAtMs) : null,
+      }, {merge:true});
+
+      return {ok:true, durationDays, expiresAtMs};
+    });
+
+    if(!result.ok){
+      statusEl.textContent = result.reason==='not-found'
+        ? 'Kode tidak ditemukan. Periksa kembali penulisannya.'
+        : 'Kode ini sudah dipakai akun lain.';
       statusEl.style.color = 'var(--rust)';
       return;
     }
-    const codeData = codeSnap.data();
-    const alreadyMine = codeData.status === 'used' && codeData.usedBy === user.uid;
-    if(codeData.status === 'used' && !alreadyMine){
-      statusEl.textContent = 'Kode ini sudah dipakai akun lain.';
-      statusEl.style.color = 'var(--rust)';
-      return;
-    }
-    if(codeData.status !== 'used'){
-      await codeRef.update({
-        status:'used', usedBy:user.uid, usedByEmail:user.email||'',
-        usedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-    const durationDays = (typeof codeData.durationDays === 'number' && codeData.durationDays > 0) ? codeData.durationDays : null;
-    const expiresAtMs = durationDays ? (Date.now() + durationDays*24*60*60*1000) : null;
-    const userUpdate = {
-      isPro:true, licenseCode:code,
-      proPackage: codeData.package || 'PRO',
-      proDurationDays: durationDays,
-      proActivatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    userUpdate.proExpiresAt = expiresAtMs ? firebase.firestore.Timestamp.fromMillis(expiresAtMs) : null;
-    await db.collection('users').doc(user.uid).set(userUpdate, {merge:true});
-    setLicensedPro(true, expiresAtMs || 'permanent');
+    setLicensedPro(true, result.expiresAtMs || 'permanent');
     applyFreeProAccessUI();
-    statusEl.textContent = durationDays
-      ? `Kode valid! PRO aktif selama ${durationDays} hari di akun Anda. 🎉`
+    statusEl.textContent = result.durationDays
+      ? `Kode valid! PRO aktif selama ${result.durationDays} hari di akun Anda. 🎉`
       : 'Kode valid! Versi PRO permanen aktif di akun Anda. 🎉';
     statusEl.style.color = 'var(--ok)';
-    logEvent('license_redeemed', {code, durationDays});
+    logEvent('license_redeemed', {code, durationDays: result.durationDays});
   }catch(e){
-    statusEl.textContent = 'Gagal memvalidasi kode. Cek koneksi internet lalu coba lagi.';
+    statusEl.textContent = 'Gagal memvalidasi kode: '+(e.message||e.code||'kesalahan tidak diketahui')+'.';
     statusEl.style.color = 'var(--rust)';
   }finally{
     redeemBtn.disabled = false;

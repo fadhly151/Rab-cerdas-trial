@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rab-cerdas-cache-v1';
+const CACHE_NAME = 'rab-cerdas-cache-v2';
 const URLS_TO_CACHE = [
   './',
   './index.html',
