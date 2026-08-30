@@ -241,9 +241,25 @@
     color:var(--blueprint);
     border-bottom-color:var(--rust);
   }
-  main{padding:16px;}
-  section{display:none;}
-  section.active{display:block;}
+  main{
+    display:flex;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    transition:height .18s ease;
+  }
+  main section{
+    flex:0 0 100%;
+    width:100%;
+    max-width:100%;
+    scroll-snap-align:start;
+    align-self:flex-start;
+    padding:16px;
+    box-sizing:border-box;
+    min-height:200px;
+  }
   .card{
     background:var(--white);
     border:1px solid var(--line);
@@ -642,8 +658,8 @@
     </div>
 
     <div class="card">
-      <h2><span class="num">03b</span> Kebutuhan Panel Plafon/Partisi</h2>
-      <p class="desc">Material panel plafon/partisi — Gypsum, PVC, WPC, atau Wallboard. Tambahkan baris untuk tiap jenis yang dipakai (rangka besi hollow dihitung terpisah di bawah).</p>
+      <h2><span class="num">03b</span> Kebutuhan Panel Plafon</h2>
+      <p class="desc">Material panel plafon (langit-langit) — Gypsum, PVC, WPC, atau Wallboard. Tambahkan baris untuk tiap jenis yang dipakai (rangka besi hollow dihitung terpisah di bawah).</p>
       <div style="overflow-x:auto;">
       <table style="min-width:480px;">
         <thead><tr><th>Jenis Bahan</th><th>Luas (m²)</th><th>Waste (%)</th><th></th></tr></thead>
@@ -658,82 +674,138 @@
     </div>
 
     <div class="card">
-      <h2><span class="num">04</span> Kebutuhan Wallpaper Dinding</h2>
-      <div class="grid2">
-        <div class="field"><label>Luas Dinding (m²)</label><input type="number" id="wpLuas" value="20"></div>
-        <div class="field"><label>Lebar Roll (m)</label><input type="number" id="wpLebar" value="0.53" step="0.01"></div>
-        <div class="field"><label>Panjang Roll (m)</label><input type="number" id="wpPanjang" value="10"></div>
-        <div class="field"><label>Waste / Pengulangan Motif (%)</label><input type="number" id="wpWaste" value="15"></div>
+      <h2><span class="num">03c</span> Kebutuhan Panel Partisi (Sekat Ruangan)</h2>
+      <p class="desc">Untuk pengerjaan dinding/sekat baru — Wallboard, WPC, UV Marmer, Walfoam, atau jenis panel dinding lain. Terpisah dari Plafon karena beda pekerjaan (rangka dihitung terpisah di bawah).</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:480px;">
+        <thead><tr><th>Jenis Bahan</th><th>Luas (m²)</th><th>Waste (%)</th><th></th></tr></thead>
+        <tbody id="partisiBody"></tbody>
+      </table>
       </div>
-      <div class="result-box" id="wpResult">Isi form untuk melihat hasil.</div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="partisiAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="partisiAddJenis">+ Tambah Jenis Bahan Baru</button>
+      </div>
+      <div class="result-box" id="partisiResult">Isi form untuk melihat hasil.</div>
     </div>
 
     <div class="card">
-      <h2><span class="num">05</span> Kebutuhan Vinyl / Parket Lantai</h2>
-      <div class="grid2">
-        <div class="field"><label>Panjang Ruangan (m)</label><input type="number" id="vpP" value="4"></div>
-        <div class="field"><label>Lebar Ruangan (m)</label><input type="number" id="vpL" value="3"></div>
-        <div class="field"><label>Luas per Dus (m²)</label><input type="number" id="vpDus" value="2.2" step="0.01"></div>
-        <div class="field"><label>Waste Potongan (%)</label><input type="number" id="vpWaste" value="8"></div>
+      <h2><span class="num">04</span> Kebutuhan Dinding</h2>
+      <p class="desc">Finishing/pelapis dinding existing — Wallboard, WPC, UV Marmer, Walfoam, dsb. Katalog bahan sama dengan kartu Partisi di atas.</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:480px;">
+        <thead><tr><th>Jenis Bahan</th><th>Luas (m²)</th><th>Waste (%)</th><th></th></tr></thead>
+        <tbody id="dindingBody"></tbody>
+      </table>
       </div>
-      <div class="result-box" id="vpResult">Isi form untuk melihat hasil.</div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="dindingAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="dindingAddJenis">+ Tambah Jenis Bahan Baru</button>
+      </div>
+      <div class="result-box" id="dindingResult">Isi form untuk melihat hasil.</div>
     </div>
 
     <div class="card">
-      <h2><span class="num">06</span> Kebutuhan Cat Dekoratif / Dinding</h2>
-      <div class="grid2">
-        <div class="field"><label>Keliling Ruangan (m)</label><input type="number" id="ctKel" value="14"></div>
-        <div class="field"><label>Tinggi Dinding (m)</label><input type="number" id="ctT" value="3"></div>
-        <div class="field"><label>Luas Bukaan (pintu/jendela, m²)</label><input type="number" id="ctBukaan" value="4"></div>
-        <div class="field"><label>Daya Sebar (m²/liter)</label><input type="number" id="ctDaya" value="10"></div>
-        <div class="field"><label>Jumlah Lapis</label><input type="number" id="ctLapis" value="2"></div>
+      <h2><span class="num">05</span> Kebutuhan Lantai</h2>
+      <p class="desc">Vinyl, SPC, PVC Deck, atau jenis lantai lain. Dihitung per dus.</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:560px;">
+        <thead><tr><th>Jenis Bahan</th><th>Luas (m²)</th><th>Luas/Dus (m²)</th><th>Waste (%)</th><th></th></tr></thead>
+        <tbody id="lantaiBody"></tbody>
+      </table>
       </div>
-      <div class="result-box" id="ctResult">Isi form untuk melihat hasil.</div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="lantaiAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="lantaiAddJenis">+ Tambah Jenis Bahan Baru</button>
+      </div>
+      <div class="result-box" id="lantaiResult">Isi form untuk melihat hasil.</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">06</span> Kebutuhan Cat Dekoratif</h2>
+      <p class="desc">Cat Tembok, Cat Kusen, Cat Pintu/Jendela, Cat Duco, atau jenis cat lain. Dihitung per liter.</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:640px;">
+        <thead><tr><th>Jenis Cat</th><th>Luas Area (m²)</th><th>Daya Sebar (m²/L)</th><th>Lapis</th><th></th></tr></thead>
+        <tbody id="catBody"></tbody>
+      </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="catAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="catAddJenis">+ Tambah Jenis Cat Baru</button>
+      </div>
+      <div class="result-box" id="catResult">Isi form untuk melihat hasil.</div>
     </div>
     <div class="card">
       <h2><span class="num">07</span> Kebutuhan Engsel, Rel Laci &amp; Handle</h2>
-      <p class="desc">Untuk kitchen set, lemari, atau kabinet custom lainnya.</p>
-      <div class="grid2">
-        <div class="field"><label>Jumlah Pintu Kabinet</label><input type="number" id="akPintu" value="8"></div>
-        <div class="field"><label>Engsel per Pintu</label><input type="number" id="akEngselPer" value="2"></div>
-        <div class="field"><label>Jumlah Laci</label><input type="number" id="akLaci" value="4"></div>
-        <div class="field"><label>Handle per Pintu/Laci</label><input type="number" id="akHandlePer" value="1"></div>
+      <p class="desc">Untuk kitchen set, lemari, atau kabinet custom lainnya. Tiap bagian bisa punya beberapa jenis/ukuran sekaligus.</p>
+
+      <p style="font-weight:700; font-size:12.5px; margin:10px 0 4px;">Engsel</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:400px;">
+        <thead><tr><th>Jenis Engsel</th><th>Jumlah (pcs)</th><th></th></tr></thead>
+        <tbody id="engselBody"></tbody>
+      </table>
       </div>
-      <div class="result-box" id="akResult">Isi form untuk melihat hasil.</div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="engselAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="engselAddJenis">+ Tambah Jenis Engsel</button>
+      </div>
+
+      <p style="font-weight:700; font-size:12.5px; margin:16px 0 4px;">Rel Laci</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:480px;">
+        <thead><tr><th>Jenis Rel Laci</th><th>Ukuran</th><th>Jumlah (pasang)</th><th></th></tr></thead>
+        <tbody id="relLaciBody"></tbody>
+      </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="relLaciAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="relLaciAddJenis">+ Tambah Jenis Rel Laci</button>
+      </div>
+
+      <p style="font-weight:700; font-size:12.5px; margin:16px 0 4px;">Handle/Pegangan</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:480px;">
+        <thead><tr><th>Jenis Handle</th><th>Ukuran</th><th>Jumlah (pcs)</th><th></th></tr></thead>
+        <tbody id="handleBody"></tbody>
+      </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="handleAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="handleAddJenis">+ Tambah Jenis Handle</button>
+      </div>
+
+      <div class="result-box" id="akResult" style="margin-top:14px;">Isi form untuk melihat hasil.</div>
     </div>
 
     <div class="card">
       <h2><span class="num">08</span> Kebutuhan Titik Lampu</h2>
-      <p class="desc">Estimasi jumlah titik lampu berdasarkan standar pencahayaan ruangan.</p>
-      <div class="grid2">
-        <div class="field"><label>Luas Ruangan (m²)</label><input type="number" id="lpLuas" value="12"></div>
-        <div class="field"><label>Jenis Ruangan</label>
-          <select id="lpJenis">
-            <option value="150">Ruang Tamu / Keluarga (150 lux)</option>
-            <option value="150">Kamar Tidur (150 lux)</option>
-            <option value="250">Dapur (250 lux)</option>
-            <option value="150">Kamar Mandi (150 lux)</option>
-            <option value="300">Ruang Kerja (300 lux)</option>
-            <option value="200">Ruang Makan (200 lux)</option>
-          </select>
-        </div>
-        <div class="field"><label>Lumen per Titik Lampu</label><input type="number" id="lpLumen" value="800"></div>
+      <p class="desc">Bisa lebih dari satu jenis lampu (mis. downlight, gantung, LED strip) dalam satu proyek.</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:400px;">
+        <thead><tr><th>Jenis Lampu</th><th>Jumlah Titik</th><th></th></tr></thead>
+        <tbody id="lampuBody"></tbody>
+      </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="lampuAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="lampuAddJenis">+ Tambah Jenis Lampu</button>
       </div>
       <div class="result-box" id="lpResult">Isi form untuk melihat hasil.</div>
     </div>
     <div class="card">
-      <h2><span class="num">09</span> Kebutuhan Besi Hollow — Rangka Plafon/Partisi</h2>
-      <p class="desc">Estimasi rangka untuk plafon gypsum atau partisi dinding.</p>
-      <div class="grid2">
-        <div class="field"><label>Luas Area (m²)</label><input type="number" id="bhLuas" value="24"></div>
-        <div class="field"><label>Jarak Rangka</label>
-          <select id="bhJarak">
-            <option value="60">60 cm (standar)</option>
-            <option value="40">40 cm (rapat/kuat)</option>
-          </select>
-        </div>
-        <div class="field"><label>Panjang per Batang (m)</label><input type="number" id="bhPanjangBatang" value="4"></div>
-        <div class="field"><label>Waste (%)</label><input type="number" id="bhWaste" value="10"></div>
+      <h2><span class="num">09</span> Kebutuhan Rangka — Plafon/Partisi</h2>
+      <p class="desc">Bisa lebih dari satu jenis rangka (mis. Besi Hollow, Kayu Kaso, Aluminium) dalam satu proyek.</p>
+      <div style="overflow-x:auto;">
+      <table style="min-width:640px;">
+        <thead><tr><th>Jenis Rangka</th><th>Luas Area (m²)</th><th>Jarak (cm)</th><th>Panjang/Batang (m)</th><th>Waste (%)</th><th></th></tr></thead>
+        <tbody id="rangkaBody"></tbody>
+      </table>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-outline" id="rangkaAddRow">+ Tambah Item</button>
+        <button class="btn btn-outline" id="rangkaAddJenis">+ Tambah Jenis Rangka</button>
       </div>
       <div class="result-box" id="bhResult">Isi form untuk melihat hasil.</div>
     </div>
@@ -1371,15 +1443,56 @@ function logEvent(name, params={}){
   }catch(e){}
 }
 
-document.querySelectorAll('.tab-btn').forEach(btn=>{
+// ---------- NAVIGASI TAB: model gulir (swipe kiri/kanan), sinkron dengan nav ----------
+const mainEl = document.querySelector('main');
+const navEl = document.querySelector('nav');
+const tabSections = Array.from(document.querySelectorAll('main > section'));
+const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+const tabOrder = tabButtons.map(b=>b.dataset.tab);
+
+function currentTabIndex(){
+  if(!mainEl.clientWidth) return 0;
+  return Math.round(mainEl.scrollLeft / mainEl.clientWidth);
+}
+function syncMainHeight(){
+  const active = tabSections[currentTabIndex()];
+  if(active) mainEl.style.height = active.scrollHeight + 'px';
+}
+function syncActiveNavButton(){
+  const idx = currentTabIndex();
+  tabButtons.forEach((b,i)=>b.classList.toggle('active', i===idx));
+  const activeBtn = tabButtons[idx];
+  if(activeBtn && navEl){
+    const target = activeBtn.offsetLeft - (navEl.clientWidth - activeBtn.clientWidth)/2;
+    navEl.scrollTo({left: Math.max(0,target), behavior:'smooth'});
+  }
+}
+// Pindah ke tab tertentu secara terprogram (dipakai tombol nav & beberapa alur otomatis)
+function goToTab(tabName){
+  const idx = tabOrder.indexOf(tabName);
+  if(idx<0 || !mainEl.clientWidth) return;
+  mainEl.scrollTo({left: idx*mainEl.clientWidth, behavior:'smooth'});
+}
+tabButtons.forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    goToTab(btn.dataset.tab);
     logEvent('tab_view', {tab: btn.dataset.tab});
   });
 });
+let scrollSettleTimer = null;
+mainEl.addEventListener('scroll', ()=>{
+  syncMainHeight();
+  syncActiveNavButton();
+  clearTimeout(scrollSettleTimer);
+  scrollSettleTimer = setTimeout(syncMainHeight, 120); // hitung ulang sekali lagi setelah swipe benar-benar berhenti
+});
+window.addEventListener('resize', syncMainHeight);
+if(typeof ResizeObserver !== 'undefined'){
+  const ro = new ResizeObserver(()=>syncMainHeight());
+  tabSections.forEach(s=>ro.observe(s));
+}
+syncMainHeight();
+syncActiveNavButton();
 
 function rupiah(n){
   if(isNaN(n)) n=0;
@@ -1648,10 +1761,7 @@ function addRabRow(data){
   const effectiveMax = hasProAccess() ? Infinity : TRIAL_MAX_ITEMS;
   if(rabBody.querySelectorAll('tr').length >= effectiveMax){
     alert('Versi Trial dibatasi maksimal '+TRIAL_MAX_ITEMS+' item RAB.\n\nAktifkan Free Trial PRO 3 Hari atau upgrade ke versi PRO untuk item tanpa batas — lihat tab ★ Upgrade.');
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-    document.querySelector('[data-tab="upgrade"]').classList.add('active');
-    document.getElementById('tab-upgrade').classList.add('active');
+    goToTab('upgrade');
     return;
   }
   data = data || {};
@@ -1907,6 +2017,81 @@ function collectProjectData(){
       multiplek: collectSheetRows('#mpBody','mp-jenis','mp-luas','mp-waste'),
       hpl: collectSheetRows('#hplBody','hpl-jenis','hpl-luas','hpl-waste'),
       plafon: collectSheetRows('#plfBody','plf-jenis','plf-luas','plf-waste'),
+      partisi: collectSheetRows('#partisiBody','partisi-jenis','partisi-luas','partisi-waste'),
+      dinding: collectSheetRows('#dindingBody','dinding-jenis','dinding-luas','dinding-waste'),
+      lantai: (function(){
+        const rows = [];
+        document.querySelectorAll('#lantaiBody tr').forEach(tr=>{
+          rows.push({
+            jenis: tr.querySelector('.lantai-jenis').value,
+            luas: parseFloat(tr.querySelector('.lantai-luas').value)||0,
+            dus: parseFloat(tr.querySelector('.lantai-dus').value)||0,
+            waste: parseFloat(tr.querySelector('.lantai-waste').value)||0,
+          });
+        });
+        return rows;
+      })(),
+      cat: (function(){
+        const rows = [];
+        document.querySelectorAll('#catBody tr').forEach(tr=>{
+          rows.push({
+            jenis: tr.querySelector('.cat-jenis').value,
+            luas: parseFloat(tr.querySelector('.cat-luas').value)||0,
+            daya: parseFloat(tr.querySelector('.cat-daya').value)||0,
+            lapis: parseFloat(tr.querySelector('.cat-lapis').value)||0,
+          });
+        });
+        return rows;
+      })(),
+      engsel: (function(){
+        const rows = [];
+        document.querySelectorAll('#engselBody tr').forEach(tr=>{
+          rows.push({ jenis: tr.querySelector('.engsel-jenis').value, jumlah: parseFloat(tr.querySelector('.engsel-jumlah').value)||0 });
+        });
+        return rows;
+      })(),
+      rellaci: (function(){
+        const rows = [];
+        document.querySelectorAll('#relLaciBody tr').forEach(tr=>{
+          rows.push({
+            jenis: tr.querySelector('.rellaci-jenis').value,
+            ukuran: tr.querySelector('.rellaci-ukuran').value,
+            jumlah: parseFloat(tr.querySelector('.rellaci-jumlah').value)||0,
+          });
+        });
+        return rows;
+      })(),
+      handle: (function(){
+        const rows = [];
+        document.querySelectorAll('#handleBody tr').forEach(tr=>{
+          rows.push({
+            jenis: tr.querySelector('.handle-jenis').value,
+            ukuran: tr.querySelector('.handle-ukuran').value,
+            jumlah: parseFloat(tr.querySelector('.handle-jumlah').value)||0,
+          });
+        });
+        return rows;
+      })(),
+      lampu: (function(){
+        const rows = [];
+        document.querySelectorAll('#lampuBody tr').forEach(tr=>{
+          rows.push({ jenis: tr.querySelector('.lampu-jenis').value, jumlah: parseFloat(tr.querySelector('.lampu-jumlah').value)||0 });
+        });
+        return rows;
+      })(),
+      rangka: (function(){
+        const rows = [];
+        document.querySelectorAll('#rangkaBody tr').forEach(tr=>{
+          rows.push({
+            jenis: tr.querySelector('.rangka-jenis').value,
+            luas: parseFloat(tr.querySelector('.rangka-luas').value)||0,
+            jarak: parseFloat(tr.querySelector('.rangka-jarak').value)||0,
+            panjangBatang: parseFloat(tr.querySelector('.rangka-panjang').value)||0,
+            waste: parseFloat(tr.querySelector('.rangka-waste').value)||0,
+          });
+        });
+        return rows;
+      })(),
     },
   };
 }
@@ -1936,6 +2121,48 @@ function applyProjectData(data){
       document.getElementById('plfBody').innerHTML = '';
       data.bahanMulti.plafon.forEach(r=>addPlfRow(r.jenis, r.luas, r.waste));
       calcPlafon();
+    }
+    if(Array.isArray(data.bahanMulti.partisi) && data.bahanMulti.partisi.length){
+      document.getElementById('partisiBody').innerHTML = '';
+      data.bahanMulti.partisi.forEach(r=>addPartisiRow(r.jenis, r.luas, r.waste));
+    }
+    if(Array.isArray(data.bahanMulti.dinding) && data.bahanMulti.dinding.length){
+      document.getElementById('dindingBody').innerHTML = '';
+      data.bahanMulti.dinding.forEach(r=>addDindingRow(r.jenis, r.luas, r.waste));
+    }
+    if(data.bahanMulti.partisi || data.bahanMulti.dinding) recalcDindingPartisiGabungan();
+    if(Array.isArray(data.bahanMulti.lantai) && data.bahanMulti.lantai.length){
+      document.getElementById('lantaiBody').innerHTML = '';
+      data.bahanMulti.lantai.forEach(r=>addLantaiRow(r.jenis, r.luas, r.dus, r.waste));
+      calcLantai();
+    }
+    if(Array.isArray(data.bahanMulti.cat) && data.bahanMulti.cat.length){
+      document.getElementById('catBody').innerHTML = '';
+      data.bahanMulti.cat.forEach(r=>addCatRow(r.jenis, r.luas, r.daya, r.lapis));
+      calcCat();
+    }
+    if(Array.isArray(data.bahanMulti.engsel) && data.bahanMulti.engsel.length){
+      document.getElementById('engselBody').innerHTML = '';
+      data.bahanMulti.engsel.forEach(r=>addEngselRow(r.jenis, r.jumlah));
+    }
+    if(Array.isArray(data.bahanMulti.rellaci) && data.bahanMulti.rellaci.length){
+      document.getElementById('relLaciBody').innerHTML = '';
+      data.bahanMulti.rellaci.forEach(r=>addRelLaciRow(r.jenis, r.ukuran, r.jumlah));
+    }
+    if(Array.isArray(data.bahanMulti.handle) && data.bahanMulti.handle.length){
+      document.getElementById('handleBody').innerHTML = '';
+      data.bahanMulti.handle.forEach(r=>addHandleRow(r.jenis, r.ukuran, r.jumlah));
+    }
+    if(data.bahanMulti.engsel || data.bahanMulti.rellaci || data.bahanMulti.handle) calcAksesoris();
+    if(Array.isArray(data.bahanMulti.lampu) && data.bahanMulti.lampu.length){
+      document.getElementById('lampuBody').innerHTML = '';
+      data.bahanMulti.lampu.forEach(r=>addLampuRow(r.jenis, r.jumlah));
+      calcLampu();
+    }
+    if(Array.isArray(data.bahanMulti.rangka) && data.bahanMulti.rangka.length){
+      document.getElementById('rangkaBody').innerHTML = '';
+      data.bahanMulti.rangka.forEach(r=>addRangkaRow(r.jenis, r.luas, r.jarak, r.panjangBatang, r.waste));
+      calcHollow();
     }
   }
 }
@@ -2141,29 +2368,52 @@ const DEFAULT_PRICES = {
   plafon_pvc: {label:'Plafon PVC', unit:'lembar', price:0},
   plafon_wpc: {label:'Plafon WPC', unit:'lembar', price:0},
   plafon_wallboard: {label:'Plafon Wallboard', unit:'lembar', price:0},
-  wallpaper: {label:'Wallpaper', unit:'roll', price:0},
-  vinyl: {label:'Vinyl / Parket', unit:'dus', price:0},
-  cat: {label:'Cat Dinding/Dekoratif', unit:'liter', price:0},
-  engsel: {label:'Engsel', unit:'pcs', price:0},
-  rellaci: {label:'Rel Laci', unit:'pasang', price:0},
-  handle: {label:'Handle/Pegangan', unit:'pcs', price:0},
-  lampu: {label:'Titik Lampu (unit+pasang)', unit:'titik', price:0},
-  hollow: {label:'Besi Hollow 4x4 (4m)', unit:'batang', price:0},
+  dp_wallboard: {label:'Wallboard', unit:'lembar', price:0},
+  dp_wpc: {label:'WPC', unit:'lembar', price:0},
+  dp_uvmarmer: {label:'UV Marmer', unit:'lembar', price:0},
+  dp_walfoam: {label:'Walfoam', unit:'lembar', price:0},
+  lantai_vinyl: {label:'Vinyl Lantai', unit:'dus', price:0},
+  lantai_spc: {label:'SPC Lantai', unit:'dus', price:0},
+  lantai_pvcdeck: {label:'PVC Deck', unit:'dus', price:0},
+  cat_tembok: {label:'Cat Tembok', unit:'liter', price:0},
+  cat_kusen: {label:'Cat Kusen', unit:'liter', price:0},
+  cat_pintujendela: {label:'Cat Pintu/Jendela', unit:'liter', price:0},
+  cat_duco: {label:'Cat Duco', unit:'liter', price:0},
+  engsel: {label:'Engsel Standar', unit:'pcs', price:0},
+  rellaci: {label:'Rel Laci Standar', unit:'pasang', price:0},
+  handle: {label:'Handle/Pegangan Standar', unit:'pcs', price:0},
+  lampu: {label:'Downlight', unit:'titik', price:0},
+  hollow: {label:'Besi Hollow', unit:'batang', price:0},
   granit: {label:'Granit/Top Table', unit:'m2', price:0},
 };
 let materialPrices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
-let materialQty = {multiplek18:0, multiplek15:0, mdf18:0, blockboard18:0, hpl:0, plafon_gypsum:0, plafon_pvc:0, plafon_wpc:0, plafon_wallboard:0, wallpaper:0, vinyl:0, cat:0, engsel:0, rellaci:0, handle:0, lampu:0, hollow:0, granit:0};
+let materialQty = {};
+Object.keys(DEFAULT_PRICES).forEach(k=>{ materialQty[k]=0; });
 // Daftar key yang termasuk 1 kelompok "jenis/seri" untuk kalkulator multi-baris
 let MULTIPLEK_KEYS = ['multiplek18','multiplek15','mdf18','blockboard18'];
 let HPL_KEYS = ['hpl'];
 let PLAFON_KEYS = ['plafon_gypsum','plafon_pvc','plafon_wpc','plafon_wallboard'];
+// Partisi (sekat/dinding baru) & Dinding (finishing dinding existing) sengaja berbagi
+// SATU katalog bahan yang sama (Wallboard/WPC/UV Marmer/Walfoam) karena keduanya
+// memang memakai jenis panel yang sama — supaya user tidak perlu isi harga 2x untuk
+// bahan yang sama. Keduanya tetap kartu & tabel terpisah sesuai permintaan.
+let DINDING_PARTISI_KEYS = ['dp_wallboard','dp_wpc','dp_uvmarmer','dp_walfoam'];
+let LANTAI_KEYS = ['lantai_vinyl','lantai_spc','lantai_pvcdeck'];
+let CAT_KEYS = ['cat_tembok','cat_kusen','cat_pintujendela','cat_duco'];
+let ENGSEL_KEYS = ['engsel'];
+let RELLACI_KEYS = ['rellaci'];
+let HANDLE_KEYS = ['handle'];
+let LAMPU_KEYS = ['lampu'];
+let RANGKA_KEYS = ['hollow'];
 
 function slugKey(text){
   return 'c_' + text.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') + '_' + Math.random().toString(36).slice(2,6);
 }
 // Tambah jenis/seri material baru ke materialPrices + ke daftar kelompok terkait,
 // lalu refresh semua dropdown jenis yang sedang tampil di kelompok itu.
-function addJenisBaru(groupKeysArray, selectClass, defaultUnit){
+// selectClasses boleh 1 nama class (string) atau beberapa sekaligus (array) —
+// dipakai saat 2 kartu berbeda berbagi satu katalog bahan yang sama (mis. Partisi & Dinding).
+function addJenisBaru(groupKeysArray, selectClasses, defaultUnit){
   const label = prompt('Nama jenis/seri baru (contoh: Multiplek 9mm, HPL Motif Kayu Oak, dsb):');
   if(!label || !label.trim()) return null;
   const unit = prompt('Satuan (contoh: lembar):', defaultUnit || 'lembar') || defaultUnit || 'lembar';
@@ -2171,7 +2421,7 @@ function addJenisBaru(groupKeysArray, selectClass, defaultUnit){
   materialPrices[key] = {label: label.trim(), unit: unit.trim(), price: 0};
   materialQty[key] = 0;
   groupKeysArray.push(key);
-  refreshJenisSelects(groupKeysArray, selectClass);
+  (Array.isArray(selectClasses) ? selectClasses : [selectClasses]).forEach(cls=>refreshJenisSelects(groupKeysArray, cls));
   renderHargaTable();
   return key;
 }
@@ -2313,115 +2563,386 @@ document.getElementById('plfAddJenis').addEventListener('click', ()=>{
 addPlfRow('plafon_gypsum', '', 10);
 calcPlafon();
 
-// ---------- BAHAN: Wallpaper ----------
-function calcWallpaper(){
-  const luas = parseFloat(document.getElementById('wpLuas').value)||0;
-  const lebar = parseFloat(document.getElementById('wpLebar').value)||0.53;
-  const panjang = parseFloat(document.getElementById('wpPanjang').value)||10;
-  const waste = parseFloat(document.getElementById('wpWaste').value)||0;
-  const luasRoll = lebar*panjang;
-  const efektif = luasRoll*(1-waste/100);
-  const roll = Math.ceil(luas/efektif);
-  document.getElementById('wpResult').innerHTML =
-    `Luas per roll: <b>${luasRoll.toFixed(2)} m²</b> (efektif ${efektif.toFixed(2)} m² setelah waste)<br>
-     Kebutuhan: <span class="big">${roll} roll</span>`;
-  materialQty.wallpaper = roll;
+// ---------- BAHAN: Partisi & Dinding (berbagi katalog DINDING_PARTISI_KEYS) ----------
+// Partisi dan Dinding adalah 2 tabel/kartu terpisah (sesuai pekerjaan yang beda),
+// tapi sama-sama menyumbang ke stok bahan yang SAMA (mis. "Wallboard" dari kartu
+// Partisi + "Wallboard" dari kartu Dinding harus terjumlah, bukan saling menimpa).
+// Karena itu materialQty untuk key-key ini SELALU dihitung ulang dari GABUNGAN
+// kedua tabel sekaligus, lewat satu fungsi bersama di bawah ini.
+function dpRowHtml(cls, jenis, luas, waste){
+  return `
+    <td><select class="${cls}-jenis">${DINDING_PARTISI_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="${cls}-luas" value="${luas!==undefined?luas:''}" placeholder="0" min="0" step="0.01"></td>
+    <td><input type="number" class="${cls}-waste" value="${waste!==undefined?waste:10}" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function sumDindingPartisiTable(tbodySelector, jenisClass, luasClass, wasteClass){
+  const sums = {};
+  let totalLuasWaste = 0, totalLembar = 0;
+  document.querySelectorAll(tbodySelector+' tr').forEach(tr=>{
+    const jenis = tr.querySelector('.'+jenisClass).value;
+    const luas = parseFloat(tr.querySelector('.'+luasClass).value)||0;
+    const waste = parseFloat(tr.querySelector('.'+wasteClass).value)||0;
+    const luasWaste = luas*(1+waste/100);
+    const lembar = Math.ceil(luasWaste/SHEET_AREA);
+    sums[jenis] = (sums[jenis]||0) + lembar;
+    totalLuasWaste += luasWaste;
+    totalLembar += lembar;
+  });
+  return {sums, totalLuasWaste, totalLembar};
+}
+function recalcDindingPartisiGabungan(){
+  const partisi = sumDindingPartisiTable('#partisiBody', 'partisi-jenis', 'partisi-luas', 'partisi-waste');
+  const dinding = sumDindingPartisiTable('#dindingBody', 'dinding-jenis', 'dinding-luas', 'dinding-waste');
+  DINDING_PARTISI_KEYS.forEach(k=>{
+    materialQty[k] = (partisi.sums[k]||0) + (dinding.sums[k]||0);
+  });
+
+  const partisiEl = document.getElementById('partisiResult');
+  if(partisi.totalLembar===0){
+    partisiEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    const rincian = Object.entries(partisi.sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} lembar</b>`).join('<br>');
+    partisiEl.innerHTML = `${rincian}<br>Total luas + waste: ${partisi.totalLuasWaste.toFixed(2)} m²<br>Total kebutuhan (kartu ini): <span class="big">${partisi.totalLembar} lembar</span>`;
+  }
+
+  const dindingEl = document.getElementById('dindingResult');
+  if(dinding.totalLembar===0){
+    dindingEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    const rincian = Object.entries(dinding.sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} lembar</b>`).join('<br>');
+    dindingEl.innerHTML = `${rincian}<br>Total luas + waste: ${dinding.totalLuasWaste.toFixed(2)} m²<br>Total kebutuhan (kartu ini): <span class="big">${dinding.totalLembar} lembar</span>`;
+  }
   if(typeof calcEstimasi==='function') calcEstimasi();
 }
-['wpLuas','wpLebar','wpPanjang','wpWaste'].forEach(id=>document.getElementById(id).addEventListener('input', calcWallpaper));
-calcWallpaper();
+function addPartisiRow(jenis, luas, waste){
+  const tr = document.createElement('tr');
+  tr.innerHTML = dpRowHtml('partisi', jenis || DINDING_PARTISI_KEYS[0], luas, waste);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', recalcDindingPartisiGabungan));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); recalcDindingPartisiGabungan(); });
+  document.getElementById('partisiBody').appendChild(tr);
+}
+function addDindingRow(jenis, luas, waste){
+  const tr = document.createElement('tr');
+  tr.innerHTML = dpRowHtml('dinding', jenis || DINDING_PARTISI_KEYS[0], luas, waste);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', recalcDindingPartisiGabungan));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); recalcDindingPartisiGabungan(); });
+  document.getElementById('dindingBody').appendChild(tr);
+}
+document.getElementById('partisiAddRow').addEventListener('click', ()=>{ addPartisiRow(); recalcDindingPartisiGabungan(); });
+document.getElementById('partisiAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(DINDING_PARTISI_KEYS, ['partisi-jenis','dinding-jenis'], 'lembar');
+  if(key){ addPartisiRow(key); recalcDindingPartisiGabungan(); }
+});
+document.getElementById('dindingAddRow').addEventListener('click', ()=>{ addDindingRow(); recalcDindingPartisiGabungan(); });
+document.getElementById('dindingAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(DINDING_PARTISI_KEYS, ['partisi-jenis','dinding-jenis'], 'lembar');
+  if(key){ addDindingRow(key); recalcDindingPartisiGabungan(); }
+});
+addPartisiRow('dp_wallboard', '', 10);
+addDindingRow('dp_wallboard', '', 10);
+recalcDindingPartisiGabungan();
 
-// ---------- BAHAN: Vinyl/Parket ----------
-function calcVinyl(){
-  const p = parseFloat(document.getElementById('vpP').value)||0;
-  const l = parseFloat(document.getElementById('vpL').value)||0;
-  const dus = parseFloat(document.getElementById('vpDus').value)||1;
-  const waste = parseFloat(document.getElementById('vpWaste').value)||0;
-  const luasRuang = p*l;
-  const luasWaste = luasRuang*(1+waste/100);
-  const jmlDus = Math.ceil(luasWaste/dus);
-  document.getElementById('vpResult').innerHTML =
-    `Luas ruangan: <b>${luasRuang.toFixed(2)} m²</b><br>
-     Luas + waste ${waste}%: <b>${luasWaste.toFixed(2)} m²</b><br>
-     Kebutuhan: <span class="big">${jmlDus} dus</span>`;
-  materialQty.vinyl = jmlDus;
+// ---------- BAHAN: Lantai (Vinyl/SPC/PVC Deck, multi-baris, dihitung per dus) ----------
+function lantaiRowHtml(jenis, luas, dus, waste){
+  return `
+    <td><select class="lantai-jenis">${LANTAI_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="lantai-luas" value="${luas!==undefined?luas:''}" placeholder="0" min="0" step="0.01"></td>
+    <td><input type="number" class="lantai-dus" value="${dus!==undefined?dus:2.2}" min="0" step="0.01"></td>
+    <td><input type="number" class="lantai-waste" value="${waste!==undefined?waste:8}" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function addLantaiRow(jenis, luas, dus, waste){
+  const tr = document.createElement('tr');
+  tr.innerHTML = lantaiRowHtml(jenis || LANTAI_KEYS[0], luas, dus, waste);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcLantai));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcLantai(); });
+  document.getElementById('lantaiBody').appendChild(tr);
+}
+function calcLantai(){
+  const sums = {};
+  let totalDus = 0;
+  LANTAI_KEYS.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll('#lantaiBody tr').forEach(tr=>{
+    const jenis = tr.querySelector('.lantai-jenis').value;
+    const luas = parseFloat(tr.querySelector('.lantai-luas').value)||0;
+    const dus = parseFloat(tr.querySelector('.lantai-dus').value)||1;
+    const waste = parseFloat(tr.querySelector('.lantai-waste').value)||0;
+    const jmlDus = Math.ceil((luas*(1+waste/100))/dus);
+    sums[jenis] = (sums[jenis]||0) + jmlDus;
+    totalDus += jmlDus;
+  });
+  Object.entries(sums).forEach(([k,v])=>{ materialQty[k] = v; });
+  const resultEl = document.getElementById('lantaiResult');
+  if(totalDus===0){
+    resultEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    const rincian = Object.entries(sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} dus</b>`).join('<br>');
+    resultEl.innerHTML = `${rincian}<br>Total kebutuhan: <span class="big">${totalDus} dus</span>`;
+  }
   if(typeof calcEstimasi==='function') calcEstimasi();
 }
-['vpP','vpL','vpDus','vpWaste'].forEach(id=>document.getElementById(id).addEventListener('input', calcVinyl));
-calcVinyl();
+document.getElementById('lantaiAddRow').addEventListener('click', ()=>{ addLantaiRow(); calcLantai(); });
+document.getElementById('lantaiAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(LANTAI_KEYS, 'lantai-jenis', 'dus');
+  if(key){ addLantaiRow(key); calcLantai(); }
+});
+addLantaiRow('lantai_vinyl', '', 2.2, 8);
+calcLantai();
 
-// ---------- BAHAN: Cat ----------
+// ---------- BAHAN: Cat Dekoratif (multi-baris, tiap jenis punya daya sebar & lapis sendiri) ----------
+function catRowHtml(jenis, luas, daya, lapis){
+  return `
+    <td><select class="cat-jenis">${CAT_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="cat-luas" value="${luas!==undefined?luas:''}" placeholder="0" min="0" step="0.01"></td>
+    <td><input type="number" class="cat-daya" value="${daya!==undefined?daya:10}" min="0.1" step="0.1"></td>
+    <td><input type="number" class="cat-lapis" value="${lapis!==undefined?lapis:2}" min="1"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function addCatRow(jenis, luas, daya, lapis){
+  const tr = document.createElement('tr');
+  tr.innerHTML = catRowHtml(jenis || CAT_KEYS[0], luas, daya, lapis);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcCat));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcCat(); });
+  document.getElementById('catBody').appendChild(tr);
+}
 function calcCat(){
-  const kel = parseFloat(document.getElementById('ctKel').value)||0;
-  const t = parseFloat(document.getElementById('ctT').value)||0;
-  const bukaan = parseFloat(document.getElementById('ctBukaan').value)||0;
-  const daya = parseFloat(document.getElementById('ctDaya').value)||1;
-  const lapis = parseFloat(document.getElementById('ctLapis').value)||1;
-  const luasDinding = Math.max(kel*t - bukaan, 0);
-  const literDibutuhkan = (luasDinding/daya)*lapis;
-  document.getElementById('ctResult').innerHTML =
-    `Luas dinding bersih: <b>${luasDinding.toFixed(2)} m²</b><br>
-     Kebutuhan cat (${lapis}x lapis): <span class="big">${literDibutuhkan.toFixed(1)} liter</span><br>
-     ≈ ${Math.ceil(literDibutuhkan/2.5)} kaleng (ukuran 2.5L)`;
-  materialQty.cat = Math.ceil(literDibutuhkan);
+  const sums = {};
+  let totalLiter = 0;
+  CAT_KEYS.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll('#catBody tr').forEach(tr=>{
+    const jenis = tr.querySelector('.cat-jenis').value;
+    const luas = parseFloat(tr.querySelector('.cat-luas').value)||0;
+    const daya = parseFloat(tr.querySelector('.cat-daya').value)||10;
+    const lapis = parseFloat(tr.querySelector('.cat-lapis').value)||1;
+    const liter = Math.ceil((luas/daya)*lapis);
+    sums[jenis] = (sums[jenis]||0) + liter;
+    totalLiter += liter;
+  });
+  Object.entries(sums).forEach(([k,v])=>{ materialQty[k] = v; });
+  const resultEl = document.getElementById('catResult');
+  if(totalLiter===0){
+    resultEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    const rincian = Object.entries(sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} liter</b>`).join('<br>');
+    resultEl.innerHTML = `${rincian}<br>Total kebutuhan: <span class="big">${totalLiter} liter</span>`;
+  }
   if(typeof calcEstimasi==='function') calcEstimasi();
 }
-['ctKel','ctT','ctBukaan','ctDaya','ctLapis'].forEach(id=>document.getElementById(id).addEventListener('input', calcCat));
+document.getElementById('catAddRow').addEventListener('click', ()=>{ addCatRow(); calcCat(); });
+document.getElementById('catAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(CAT_KEYS, 'cat-jenis', 'liter');
+  if(key){ addCatRow(key); calcCat(); }
+});
+addCatRow('cat_tembok', '', 10, 2);
 calcCat();
 
-// ---------- BAHAN: Aksesoris Kabinet ----------
-function calcAksesoris(){
-  const pintu = parseFloat(document.getElementById('akPintu').value)||0;
-  const engselPer = parseFloat(document.getElementById('akEngselPer').value)||2;
-  const laci = parseFloat(document.getElementById('akLaci').value)||0;
-  const handlePer = parseFloat(document.getElementById('akHandlePer').value)||1;
-  const engsel = pintu*engselPer;
-  const relLaci = laci*1;
-  const handle = (pintu+laci)*handlePer;
-  document.getElementById('akResult').innerHTML =
-    `Engsel: <span class="big">${engsel} pcs</span><br>
-     Rel Laci: <b>${relLaci} pasang</b><br>
-     Handle/Pegangan: <b>${handle} pcs</b>`;
-  materialQty.engsel = engsel;
-  materialQty.rellaci = relLaci;
-  materialQty.handle = handle;
+// ---------- BAHAN: Engsel (multi-jenis, per pcs) ----------
+function simpleCountRowHtml(cls, keysArray, jenis, jumlah){
+  return `
+    <td><select class="${cls}-jenis">${keysArray.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="${cls}-jumlah" value="${jumlah!==undefined?jumlah:''}" placeholder="0" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function calcSimpleCountGroup(tbodySelector, cls, keysArray, resultElId, satuanLabel){
+  const sums = {};
+  let total = 0;
+  keysArray.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll(tbodySelector+' tr').forEach(tr=>{
+    const jenis = tr.querySelector('.'+cls+'-jenis').value;
+    const jumlah = parseFloat(tr.querySelector('.'+cls+'-jumlah').value)||0;
+    sums[jenis] = (sums[jenis]||0) + jumlah;
+    total += jumlah;
+  });
+  Object.entries(sums).forEach(([k,v])=>{ materialQty[k] = v; });
+  const resultEl = document.getElementById(resultElId);
+  if(resultEl){
+    if(total===0){
+      resultEl.innerHTML = 'Isi form untuk melihat hasil.';
+    }else{
+      const rincian = Object.entries(sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} ${satuanLabel}</b>`).join('<br>');
+      resultEl.innerHTML = `${rincian}<br>Total: <span class="big">${total} ${satuanLabel}</span>`;
+    }
+  }
   if(typeof calcEstimasi==='function') calcEstimasi();
 }
-['akPintu','akEngselPer','akLaci','akHandlePer'].forEach(id=>document.getElementById(id).addEventListener('input', calcAksesoris));
+function addEngselRow(jenis, jumlah){
+  const tr = document.createElement('tr');
+  tr.innerHTML = simpleCountRowHtml('engsel', ENGSEL_KEYS, jenis || ENGSEL_KEYS[0], jumlah);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcAksesoris));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcAksesoris(); });
+  document.getElementById('engselBody').appendChild(tr);
+}
+document.getElementById('engselAddRow').addEventListener('click', ()=>{ addEngselRow(); calcAksesoris(); });
+document.getElementById('engselAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(ENGSEL_KEYS, 'engsel-jenis', 'pcs');
+  if(key){ addEngselRow(key); calcAksesoris(); }
+});
+
+// ---------- BAHAN: Rel Laci (multi-jenis + ukuran, per pasang) ----------
+function relLaciRowHtml(jenis, ukuran, jumlah){
+  return `
+    <td><select class="rellaci-jenis">${RELLACI_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="text" class="rellaci-ukuran" value="${ukuran||''}" placeholder="mis. 40cm" style="width:90px;"></td>
+    <td><input type="number" class="rellaci-jumlah" value="${jumlah!==undefined?jumlah:''}" placeholder="0" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function addRelLaciRow(jenis, ukuran, jumlah){
+  const tr = document.createElement('tr');
+  tr.innerHTML = relLaciRowHtml(jenis || RELLACI_KEYS[0], ukuran, jumlah);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcAksesoris));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcAksesoris(); });
+  document.getElementById('relLaciBody').appendChild(tr);
+}
+document.getElementById('relLaciAddRow').addEventListener('click', ()=>{ addRelLaciRow(); calcAksesoris(); });
+document.getElementById('relLaciAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(RELLACI_KEYS, 'rellaci-jenis', 'pasang');
+  if(key){ addRelLaciRow(key); calcAksesoris(); }
+});
+
+// ---------- BAHAN: Handle (multi-jenis + ukuran, per pcs) ----------
+function handleRowHtml(jenis, ukuran, jumlah){
+  return `
+    <td><select class="handle-jenis">${HANDLE_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="text" class="handle-ukuran" value="${ukuran||''}" placeholder="mis. 12cm" style="width:90px;"></td>
+    <td><input type="number" class="handle-jumlah" value="${jumlah!==undefined?jumlah:''}" placeholder="0" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function addHandleRow(jenis, ukuran, jumlah){
+  const tr = document.createElement('tr');
+  tr.innerHTML = handleRowHtml(jenis || HANDLE_KEYS[0], ukuran, jumlah);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcAksesoris));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcAksesoris(); });
+  document.getElementById('handleBody').appendChild(tr);
+}
+document.getElementById('handleAddRow').addEventListener('click', ()=>{ addHandleRow(); calcAksesoris(); });
+document.getElementById('handleAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(HANDLE_KEYS, 'handle-jenis', 'pcs');
+  if(key){ addHandleRow(key); calcAksesoris(); }
+});
+
+function calcAksesoris(){
+  calcSimpleCountGroup('#engselBody', 'engsel', ENGSEL_KEYS, null, 'pcs');
+  const relSums = {}; let relTotal = 0;
+  RELLACI_KEYS.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll('#relLaciBody tr').forEach(tr=>{
+    const jenis = tr.querySelector('.rellaci-jenis').value;
+    const jumlah = parseFloat(tr.querySelector('.rellaci-jumlah').value)||0;
+    relSums[jenis] = (relSums[jenis]||0) + jumlah;
+    relTotal += jumlah;
+  });
+  Object.entries(relSums).forEach(([k,v])=>{ materialQty[k] = v; });
+  const hSums = {}; let hTotal = 0;
+  HANDLE_KEYS.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll('#handleBody tr').forEach(tr=>{
+    const jenis = tr.querySelector('.handle-jenis').value;
+    const jumlah = parseFloat(tr.querySelector('.handle-jumlah').value)||0;
+    hSums[jenis] = (hSums[jenis]||0) + jumlah;
+    hTotal += jumlah;
+  });
+  Object.entries(hSums).forEach(([k,v])=>{ materialQty[k] = v; });
+
+  let engselTotal = 0;
+  ENGSEL_KEYS.forEach(k=>{ engselTotal += materialQty[k]||0; });
+
+  const resultEl = document.getElementById('akResult');
+  if(engselTotal===0 && relTotal===0 && hTotal===0){
+    resultEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    resultEl.innerHTML =
+      `Total Engsel: <span class="big">${engselTotal} pcs</span><br>
+       Total Rel Laci: <b>${relTotal} pasang</b><br>
+       Total Handle/Pegangan: <b>${hTotal} pcs</b>`;
+  }
+  if(typeof calcEstimasi==='function') calcEstimasi();
+}
+addEngselRow('engsel', '');
+addRelLaciRow('rellaci', '', '');
+addHandleRow('handle', '', '');
 calcAksesoris();
 
-// ---------- BAHAN: Titik Lampu ----------
-function calcLampu(){
-  const luas = parseFloat(document.getElementById('lpLuas').value)||0;
-  const lux = parseFloat(document.getElementById('lpJenis').value)||150;
-  const lumenPer = parseFloat(document.getElementById('lpLumen').value)||800;
-  const totalLumen = luas*lux;
-  const titik = Math.ceil(totalLumen/lumenPer);
-  document.getElementById('lpResult').innerHTML =
-    `Total kebutuhan cahaya: <b>${totalLumen.toFixed(0)} lumen</b><br>
-     Estimasi: <span class="big">${titik} titik lampu</span>`;
-  materialQty.lampu = titik;
-  if(typeof calcEstimasi==='function') calcEstimasi();
+// ---------- BAHAN: Titik Lampu (multi-jenis) ----------
+function lampuRowHtml(jenis, jumlah){
+  return `
+    <td><select class="lampu-jenis">${LAMPU_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="lampu-jumlah" value="${jumlah!==undefined?jumlah:''}" placeholder="0" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
 }
-['lpLuas','lpJenis','lpLumen'].forEach(id=>document.getElementById(id).addEventListener('input', calcLampu));
+function addLampuRow(jenis, jumlah){
+  const tr = document.createElement('tr');
+  tr.innerHTML = lampuRowHtml(jenis || LAMPU_KEYS[0], jumlah);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcLampu));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcLampu(); });
+  document.getElementById('lampuBody').appendChild(tr);
+}
+function calcLampu(){
+  calcSimpleCountGroup('#lampuBody', 'lampu', LAMPU_KEYS, 'lpResult', 'titik');
+}
+document.getElementById('lampuAddRow').addEventListener('click', ()=>{ addLampuRow(); calcLampu(); });
+document.getElementById('lampuAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(LAMPU_KEYS, 'lampu-jenis', 'titik');
+  if(key){ addLampuRow(key); calcLampu(); }
+});
+addLampuRow('lampu', '');
 calcLampu();
 
-// ---------- BAHAN: Besi Hollow (Rangka Plafon/Partisi) ----------
+// ---------- BAHAN: Rangka Plafon/Partisi (multi-jenis: Hollow, Kayu, Aluminium, dst) ----------
+function rangkaRowHtml(jenis, luas, jarak, panjangBatang, waste){
+  return `
+    <td><select class="rangka-jenis">${RANGKA_KEYS.map(k=>`<option value="${k}" ${k===jenis?'selected':''}>${materialPrices[k].label}</option>`).join('')}</select></td>
+    <td><input type="number" class="rangka-luas" value="${luas!==undefined?luas:''}" placeholder="0" min="0" step="0.01"></td>
+    <td><input type="number" class="rangka-jarak" value="${jarak!==undefined?jarak:60}" min="1"></td>
+    <td><input type="number" class="rangka-panjang" value="${panjangBatang!==undefined?panjangBatang:4}" min="0.1" step="0.1"></td>
+    <td><input type="number" class="rangka-waste" value="${waste!==undefined?waste:10}" min="0"></td>
+    <td><button class="rm-btn">✕</button></td>
+  `;
+}
+function addRangkaRow(jenis, luas, jarak, panjangBatang, waste){
+  const tr = document.createElement('tr');
+  tr.innerHTML = rangkaRowHtml(jenis || RANGKA_KEYS[0], luas, jarak, panjangBatang, waste);
+  tr.querySelectorAll('input, select').forEach(el=>el.addEventListener('input', calcHollow));
+  tr.querySelector('.rm-btn').addEventListener('click', ()=>{ tr.remove(); calcHollow(); });
+  document.getElementById('rangkaBody').appendChild(tr);
+}
 function calcHollow(){
-  const luas = parseFloat(document.getElementById('bhLuas').value)||0;
-  const jarak = parseFloat(document.getElementById('bhJarak').value)||60;
-  const panjangBatang = parseFloat(document.getElementById('bhPanjangBatang').value)||4;
-  const waste = parseFloat(document.getElementById('bhWaste').value)||0;
-  const faktor = 3.6*(60/jarak); // meter lari per m2, rule of thumb kontraktor
-  const totalLM = luas*faktor*(1+waste/100);
-  const batang = Math.ceil(totalLM/panjangBatang);
-  document.getElementById('bhResult').innerHTML =
-    `Total panjang rangka: <b>${totalLM.toFixed(1)} m'</b><br>
-     Kebutuhan: <span class="big">${batang} batang</span> (@${panjangBatang}m/batang)`;
-  materialQty.hollow = batang;
+  const sums = {};
+  let totalBatang = 0;
+  RANGKA_KEYS.forEach(k=>{ materialQty[k]=0; });
+  document.querySelectorAll('#rangkaBody tr').forEach(tr=>{
+    const jenis = tr.querySelector('.rangka-jenis').value;
+    const luas = parseFloat(tr.querySelector('.rangka-luas').value)||0;
+    const jarak = parseFloat(tr.querySelector('.rangka-jarak').value)||60;
+    const panjangBatang = parseFloat(tr.querySelector('.rangka-panjang').value)||4;
+    const waste = parseFloat(tr.querySelector('.rangka-waste').value)||0;
+    const faktor = 3.6*(60/jarak); // meter lari per m2, rule of thumb kontraktor
+    const totalLM = luas*faktor*(1+waste/100);
+    const batang = Math.ceil(totalLM/panjangBatang);
+    sums[jenis] = (sums[jenis]||0) + batang;
+    totalBatang += batang;
+  });
+  Object.entries(sums).forEach(([k,v])=>{ materialQty[k] = v; });
+  const resultEl = document.getElementById('bhResult');
+  if(totalBatang===0){
+    resultEl.innerHTML = 'Isi form untuk melihat hasil.';
+  }else{
+    const rincian = Object.entries(sums).map(([k,v])=>`${materialPrices[k].label}: <b>${v} batang</b>`).join('<br>');
+    resultEl.innerHTML = `${rincian}<br>Total kebutuhan: <span class="big">${totalBatang} batang</span>`;
+  }
   if(typeof calcEstimasi==='function') calcEstimasi();
 }
-['bhLuas','bhJarak','bhPanjangBatang','bhWaste'].forEach(id=>document.getElementById(id).addEventListener('input', calcHollow));
+document.getElementById('rangkaAddRow').addEventListener('click', ()=>{ addRangkaRow(); calcHollow(); });
+document.getElementById('rangkaAddJenis').addEventListener('click', ()=>{
+  const key = addJenisBaru(RANGKA_KEYS, 'rangka-jenis', 'batang');
+  if(key){ addRangkaRow(key); calcHollow(); }
+});
+addRangkaRow('hollow', '', 60, 4, 10);
 calcHollow();
 
 // ---------- BAHAN: Granit/Top Table ----------
@@ -2559,10 +3080,7 @@ document.getElementById('jsAddToRab').addEventListener('click', ()=>{
   const tingkat = parseFloat(document.getElementById('jsTingkat').value)||1;
   addRabRow({uraian: preset.nama, vol: volume, satuan: preset.satuan, harga: Math.round(upah*tingkat), tahap:'auto'});
   logEvent('jasa_added_to_rab', {jenis});
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
-  document.querySelector('[data-tab="rab"]').classList.add('active');
-  document.getElementById('tab-rab').classList.add('active');
+  goToTab('rab');
   const statusEl = document.getElementById('jsStatus');
   statusEl.textContent = 'Ditambahkan ke RAB.';
   setTimeout(()=>statusEl.textContent='', 2500);
